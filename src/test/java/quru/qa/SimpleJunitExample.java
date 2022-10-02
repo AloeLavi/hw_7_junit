@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import java.time.Month;
@@ -44,6 +45,20 @@ public class SimpleJunitExample {
         $(byName("date_from")).setValue("01.01.2023").pressEnter();
         $(byClassName("j-submit_button")).click();
         $(byClassName("Ibn0I0o1tdeDjL4-YTn1n")).shouldHave(text("Москва — "+ testData));
+    }
+
+    @CsvSource({
+            "https://www.tutu.ru/poezda/, Москва, Сочи",
+              "https://www.tutu.travel/poezda/, Moscow, Sochi"
+            })
+    @ParameterizedTest(name = "Проверка подбора билетов на поезд из Москвы в Сочи")
+    void tutuParameterizedTestWithCityAndTime(String site, String city1, String city2){
+        open(site);
+        $(byName("schedule_station_from")).setValue(city1).pressEnter();
+        $(byName("schedule_station_to")).setValue(city2);
+        $(byClassName("j-date_to")).setValue("01.01.2023");
+        $(byClassName("j-button-submit")).click();
+        $(byClassName("_68Sr6IM8-eKoi8iow9l1e")).shouldHave(text(city1+" — "+ city2));
     }
 
 }
