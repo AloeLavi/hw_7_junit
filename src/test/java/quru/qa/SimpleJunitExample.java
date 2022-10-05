@@ -1,21 +1,23 @@
 package quru.qa;
 
-import com.codeborne.selenide.Condition;
+import com.codeborne.selenide.CollectionCondition;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
+import quru.qa.data.Locale;
 
-import java.time.Month;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
+import java.util.List;
+import java.util.stream.Stream;
 
 import static com.codeborne.selenide.Condition.text;
+import static com.codeborne.selenide.Condition.visible;
 import static com.codeborne.selenide.Selectors.*;
-import static com.codeborne.selenide.Selenide.$;
-import static com.codeborne.selenide.Selenide.open;
+import static com.codeborne.selenide.Selenide.*;
 
 public class SimpleJunitExample {
 
@@ -24,6 +26,7 @@ public class SimpleJunitExample {
     void simpleTest(){
 
     }
+    @Disabled
 
     @DisplayName("Проверка подбора билетов на самолет из Москвы в Пермь")
     @Test
@@ -35,7 +38,7 @@ public class SimpleJunitExample {
         $(byClassName("j-submit_button")).click();
         $(byClassName("Ibn0I0o1tdeDjL4-YTn1n")).shouldHave(text("Москва — Пермь"));
     }
-
+@Disabled
     @ValueSource(strings = {"Казань", "Сочи"})
     @ParameterizedTest(name = "Проверка подбора билетов на самолет из Москвы в {0}")
     void tutuParameterizedTest(String testData){
@@ -46,6 +49,7 @@ public class SimpleJunitExample {
         $(byClassName("j-submit_button")).click();
         $(byClassName("Ibn0I0o1tdeDjL4-YTn1n")).shouldHave(text("Москва — "+ testData));
     }
+    @Disabled
 
     @CsvSource({
             "https://www.tutu.ru/poezda/, Москва, Сочи",
@@ -59,6 +63,25 @@ public class SimpleJunitExample {
         $(byClassName("j-date_to")).setValue("01.01.2023");
         $(byClassName("j-button-submit")).click();
         $(byClassName("_68Sr6IM8-eKoi8iow9l1e")).shouldHave(text(city1+" — "+ city2));
+    }
+
+
+    static Stream<Arguments> selenideSiteButtonsTextDataProvider() {
+        return Stream.of(
+                Arguments.of(List.of("Ofertas del Día", "Servicio al Cliente", "Listas", "Tarjetas de Regalo", "Vender"), "español"),
+                Arguments.of(List.of("Angebote des Tages", "Kundenservice", "Wunschlisten", "Geschenkkarten", "Verkaufen bei Amazon"), "Deutsch")
+        );
+    }
+
+    @MethodSource("selenideSiteButtonsTextDataProvider")
+    @ParameterizedTest(name = "Проверка кнопок меню в зависимости от локали: {1}")
+    void tutuParameterizedTestWithCityAndTime(List<String> buttons, Locale locale){
+        open("https://www.amazon.com/");
+        $(".icp-nav-link-inner").click();
+        $(withText(String.valueOf(locale))).click();
+        $(".a-button-input").click();
+        $$(".nav-progressive-content a").filter(visible).shouldHave(CollectionCondition.texts(buttons));
+
     }
 
 }
